@@ -76,11 +76,12 @@ const loginUser  = async (req,res) => {
             })
         }
 
-        if(user.role !== role){
-            return res.status(400).send({
-                message : "User not found with this role",
-                success : false
-            })
+        const allowedRoles = ['student', 'recruiter'];
+        if (!allowedRoles.includes(role)) {
+            return res.status(400).send({ 
+                message: "Invalid role", 
+                success: false 
+            });
         }
 
         const accessToken = jwt.sign(
@@ -94,31 +95,12 @@ const loginUser  = async (req,res) => {
             }
         );
 
-        const refreshToken = jwt.sign(
-            {
-                userId: user._id
-            },
-            process.env.JWT_REFRESH_SECRET,
-            {
-                expiresIn: "7d"
-            }
-        );
-
-        user.refreshToken = refreshToken;
-        await user.save();
-
         res
         .cookie("accessToken", accessToken, {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
             sameSite: "strict",
             maxAge: 15 * 60 * 1000
-        })
-        .cookie("refreshToken", refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "strict",
-            maxAge: 7 * 24 * 60 * 60 * 1000
         })
         .status(200)
         .send({
@@ -249,7 +231,7 @@ const updateUser = async (req,res) => {
         avatar : file?.path
     },{new : true});
     
-    user = await user.populate("jobs");
+    user = await user.populate({ path: "jobs", options: { strictPopulate: false } })
 
     if(!user){
         return res.status(400).send({
