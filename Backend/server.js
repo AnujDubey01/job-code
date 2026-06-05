@@ -4,6 +4,8 @@ const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const connectDB  = require("./config/db");
 const userRoutes = require('./routes/user.route')
+const companyRoutes = require('./routes/company.route')
+const jobRoutes = require('./routes/job.route')
 dotenv.config();
 
 
@@ -27,6 +29,8 @@ const PORT = process.env.PORT || 3000
 
 
 app.use('/api/v1/user', userRoutes);
+app.use('/api/v1/company', companyRoutes);
+app.use('/api/v1/job', jobRoutes);
 
 app.listen(PORT,()=> {
     connectDB();

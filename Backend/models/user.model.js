@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     role : {
         type : String,
-        enum : ['student','Recruiter'],
+        enum : ['student','recruiter'],
         required : true,
         default : 'student'
     },
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
         }
     },
 },
-    {timeStamps : true}
+    {timestamps : true}
 );
 
 userSchema.pre('save', async function () {

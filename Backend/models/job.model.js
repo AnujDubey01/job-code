@@ -1,12 +1,16 @@
 const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema ({
-    title : {
+    tittle : {
         type : String,
         required : true
     },
     description : {
         type : String,
+        required : true
+    },
+    requirements : {
+        type : [String],
         required : true
     },
     company : {
@@ -29,6 +33,10 @@ const jobSchema = new mongoose.Schema ({
     jobType : {
         type : String,
         enum : ['full-time', 'part-time', 'internship'],
+        required : true
+    },
+    experience : {
+        type: Number,
         required : true
     },
     created_By : {
