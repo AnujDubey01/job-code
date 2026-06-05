@@ -3,6 +3,7 @@ const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const connectDB  = require("./config/db");
+const userRoutes = require('./routes/user.route')
 dotenv.config();
 
 
@@ -24,7 +25,10 @@ app.get('/' ,(req,res) => {
 
 const PORT = process.env.PORT || 3000
 
-app.listen('PORT',()=> {
+
+app.use('/api/v1/user', userRoutes);
+
+app.listen(PORT,()=> {
     connectDB();
     console.log("Server started on port 3600");
 })

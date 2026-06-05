@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
-import * as next from 'next';
+// import * as next from 'next';
 
 const userSchema = new mongoose.Schema({
 
@@ -23,7 +23,7 @@ const userSchema = new mongoose.Schema({
     },
     role : {
         type : String,
-        enum : ['student',Recruiter],
+        enum : ['student','Recruiter'],
         required : true,
         default : 'student'
     },
@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
         }
     },
 },
-    {timeStamp : true}
+    {timeStamps : true}
 );
 
 userSchema.pre('save',async function (next) {
@@ -50,13 +50,13 @@ userSchema.pre('save',async function (next) {
     try {
         const salt = await bcrypt.genSalt(10);
         const hashedPassword = await bcrypt.hash(this.password, salt);
+        this.password = hashedPassword;
         next();
 
-    } catch (error) {
-        res.status(500).send({
-            message : error.message
-        });
-    }
+        } catch (error) {
+            next(error);
+        }
+
 });
 
 userSchema.methods.matchPassword = async function(enteredPassword) { 

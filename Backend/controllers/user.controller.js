@@ -1,4 +1,6 @@
-const User = require("../models/user.model")
+const User = require("../models/user.model");
+const jwt = require('jsonwebtoken');
+
 
 const registerUser = async (req,res) => {
 
@@ -66,7 +68,7 @@ const loginUser  = async (req,res) => {
             });
         }
 
-        const isMatch = await user.comparePassword(password);
+        const isMatch = await user.matchPassword(password);
         if(!isMatch){
             return res.status(400).send({
                 message : "Invalid credentials",
@@ -215,15 +217,66 @@ const logoutUser = async (req, res) => {
             message: "Logged out successfully"
         });
    } catch (error) {
-    return res,status(500).send({
+    return res.status(500).send({
         message : error.message,
         success : false
     });
    }
 };
+
+const updateUser = async (req,res) => {
+   try {
+     const {fullname , email , phoneNumber , bio , skills } = req.body;
+
+    const file =  req.file;
+
+    if(!fullname && !email && !phoneNumber && !bio && !skills && !file){
+        return res.status(400).send({
+            message : "Please provide atleast one field to update",
+            success : false
+        })
+    }
+
+    const skillsArray = skills ? skills.split(",") : undefined;
+
+    const userId = req.user.id;
+    let user = await User.findByIdAndUpdate(userId,{
+        fullname,
+        email,
+        phoneNumber,
+        bio,
+        skills : skillsArray,
+        avatar : file?.path
+    },{new : true});
+    
+    user = await user.populate("jobs");
+
+    if(!user){
+        return res.status(400).send({
+            message : "User not found",
+            success : false
+        })
+    }
+
+    return res.status(200).send({
+        message : "User updated successfully",
+        success : true,
+        user
+    })
+
+   } catch (error) {
+        return res.status(500).send({
+            message : error.message,
+            success : false
+        });
+   }
+
+}
+
  module.exports = {
     registerUser,
     loginUser,
     refreshAccessToken,
-    logoutUser
+    logoutUser,
+    updateUser
 }
