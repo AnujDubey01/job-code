@@ -8,6 +8,9 @@ import { RadioGroup } from "../ui/radio-group";
 import axios from "axios";
 import { toast } from "sonner";
 import { USER_API_END_POINT } from "../../../data/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/redux/authslice";
+import { Loader2 } from "lucide-react";
 
 
 function Signup() {
@@ -20,7 +23,9 @@ function Signup() {
     file: "",
   });
 
-  const navigate = useNavigate(); 
+  const navigate = useNavigate();
+  const { loading } = useSelector((state) => state.auth);
+  const dispatch = useDispatch(); 
 
   const changeEventHandler = (e) => {
     setInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -43,6 +48,7 @@ function Signup() {
       formData.append("file",input.file);
     }
     try {
+      dispatch(setLoading(true));
       const res = await axios.post(`${USER_API_END_POINT}/register` , formData , {
         headers: {
           "content-type": "multipart/form-data",
@@ -60,6 +66,8 @@ function Signup() {
     } else {
         toast.error("Registration failed. Please try again.");
     }
+    } finally{
+      dispatch(setLoading(false));
     }
   }
 
@@ -171,10 +179,12 @@ function Signup() {
                   />
                 </div>
               </div>
+              {
+                  loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 w-4 animate-spin"/>Please wait</Button> : <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
+                  Create Account
+                  </Button>
+              }
 
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
-                Create Account
-              </Button>
             </div>
 
             <div className="mt-8 text-center">

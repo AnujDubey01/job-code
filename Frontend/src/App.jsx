@@ -1,9 +1,8 @@
-import Navbar from './components/Utils/Navbar'
 import './App.css'
-import { createBrowserRouter, RouterProvider, } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Login from './components/auth/Login'
 import Signup from './components/auth/Signup'
-import Home from './components/ui/Home'
+import Home from './components/Home'
 import { Toaster } from 'sonner'
 
 const appRouter = createBrowserRouter([

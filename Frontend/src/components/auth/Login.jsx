@@ -9,23 +9,30 @@ import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { RadioGroup } from "../ui/radio-group";
 import { USER_API_END_POINT } from "../../../data/constant";
+import { useDispatch, useSelector } from "react-redux";
+import { setLoading } from "@/redux/authslice";
+import { Loader2 } from "lucide-react";
 
 function Login() {
-  const navigate = useNavigate();
+
    const [input, setInput] = useState({
        email: "",
        password: "",
        role: "",
      });
+     const {loading} = useSelector(store=>store.auth);
+    const navigate = useNavigate();
+    const dispatch = useDispatch();
+
    
      const changeEventHandler = (e) => {
        setInput((prev) => ({ ...prev, [e.target.name]: e.target.value }));
      };
 
      const submitHandler = async (e) => {
-    e.preventDefault();
-
-    try {
+      e.preventDefault();
+      try {
+        dispatch(setLoading(true));
       const res = await axios.post(`${ USER_API_END_POINT}/login` , input , {
         headers: {
           "content-type": "application/json",
@@ -38,6 +45,8 @@ function Login() {
       }
     } catch (error) {
       console.log(error);
+    } finally{
+      dispatch(setLoading(false))
     }
   }
    
@@ -111,10 +120,12 @@ function Login() {
                   </div>
                 </RadioGroup>
               </div>
-
-              <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
+                {
+                  loading ? <Button className="w-full my-4"> <Loader2 className="mr-2 h-4 w-4 animate-spin"/>Please wait</Button> : <Button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 shadow-lg hover:shadow-xl">
                 Login
               </Button>
+                }
+              
             </div>
 
             <div className="mt-8 text-center">
