@@ -1,4 +1,5 @@
 const express = require("express");
+const multer = require('multer');
 const dotenv = require("dotenv");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");

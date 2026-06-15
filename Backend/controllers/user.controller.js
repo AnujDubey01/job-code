@@ -3,43 +3,58 @@ const jwt = require('jsonwebtoken');
 
 
 const registerUser = async (req,res) => {
+    console.log("=== REGISTER REQUEST DEBUG ===");
+    console.log("req.body:", req.body);
+    console.log("req.file:", req.file);
+    console.log("================================");
 
     try {
         const {fullname,email,password,role,phoneNumber} = req.body;
 
-    if(!fullname || !email || !password || !role || !phoneNumber){
-        return res.status(400).send({
-            message : "All fields are required",
-            success : false
-        })
-    }
+        console.log("Extracted fields:", { fullname, email, password, role, phoneNumber });
 
-    const user = await User.findOne({email});
+        if(!fullname || !email || !password || !role || !phoneNumber){
+            console.log("Missing fields validation failed");
+            return res.status(400).send({
+                message : "All fields are required",
+                success : false
+            })
+        }
 
-    if(user){
-        return res.status(400).send({
-            message : "User already exists",
-            success : false
-        })
-    }
+        console.log("Checking if user exists...");
+        const user = await User.findOne({email});
 
-    // hash password here
+        if(user){
+            console.log("User already exists");
+            return res.status(400).send({
+                message : "User already exists",
+                success : false
+            })
+        }
 
-    const newUser  = await User.create({
-        fullname,
-        email,
-        password,
-        role,
-        phoneNumber
-    });
+        console.log("Creating new user...");
+        const newUser = await User.create({
+            fullname,
+            email,
+            password,
+            role,
+            phoneNumber
+        });
 
-    return res.status(200).send({
-        message : "User registered successfully",
-        success : true,
-        user : newUser
-    });
+        console.log("User created successfully:", newUser._id);
+        return res.status(200).send({
+            message : "User registered successfully",
+            success : true,
+            user : newUser
+        });
 
     } catch (error) {
+        console.log("=== ERROR DETAILS ===");
+        console.log("Error message:", error.message);
+        console.log("Error name:", error.name);
+        console.log("Full error:", error);
+        console.log("====================");
+        
         res.status(500).send({
             message : error.message,
             success : false

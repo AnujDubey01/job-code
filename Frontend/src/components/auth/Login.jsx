@@ -1,12 +1,17 @@
 import React, { useState } from "react";
 import Navbar from "../Utils/Navbar";
+import axios from 'axios'
+import { useNavigate } from 'react-router-dom'
+import { toast } from 'sonner'
 import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { RadioGroup } from "../ui/radio-group";
+import { USER_API_END_POINT } from "../../../data/constant";
 
 function Login() {
+  const navigate = useNavigate();
    const [input, setInput] = useState({
        email: "",
        password: "",
@@ -18,9 +23,23 @@ function Login() {
      };
 
      const submitHandler = async (e) => {
-       e.preventDefault();
-       console.log(input);
-     }
+    e.preventDefault();
+
+    try {
+      const res = await axios.post(`${ USER_API_END_POINT}/login` , input , {
+        headers: {
+          "content-type": "application/json",
+        },
+        withCredentials:true,
+      });
+      if(res.data.success){
+        navigate("/");
+        toast.success(res.data.message);
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  }
    
   return (
     <div className="min-h-screen bg-gray-50">
@@ -83,7 +102,7 @@ function Login() {
                       type="radio"
                       name="role"
                       value="recruiter"
-                      checked={input.role==="student"}
+                      checked={input.role==="recruiter"}
                       onChange = {changeEventHandler}
                       id="r2"
                       className="cursor-pointer w-4 h-4" // Add width/height for radio
@@ -102,7 +121,7 @@ function Login() {
               <p className="text-gray-600">
                 Don't have an account?{" "}
                 <Link
-                  to="/Signup"
+                  to="/signup"
                   className="text-blue-600 hover:text-blue-700 font-medium hover:underline"
                 >
                   Sign Up

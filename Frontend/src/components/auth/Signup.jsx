@@ -7,6 +7,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { RadioGroup } from "../ui/radio-group";
 import axios from "axios";
 import { toast } from "sonner";
+import { USER_API_END_POINT } from "../../../data/constant";
+
 
 function Signup() {
   const [input, setInput] = useState({
@@ -41,7 +43,7 @@ function Signup() {
       formData.append("file",input.file);
     }
     try {
-      const res = await axios.post(`{USER_API_END_POINT}/register` , formData , {
+      const res = await axios.post(`${USER_API_END_POINT}/register` , formData , {
         headers: {
           "content-type": "multipart/form-data",
         },
@@ -53,6 +55,11 @@ function Signup() {
       }
     } catch (error) {
       console.log(error);
+      if (error.response?.data?.message) {
+        toast.error(error.response.data.message);
+    } else {
+        toast.error("Registration failed. Please try again.");
+    }
     }
   }
 
