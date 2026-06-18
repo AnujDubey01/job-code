@@ -7,12 +7,37 @@ import { Button } from "@/components/ui/button";
 import { Search, MapPin, ChevronDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { jobs as mockJobs } from "../../../data/jobData";
 
+// How many job cards to show per page — change this one number to adjust
+const JOBS_PER_PAGE = 9;
+
 const Jobs = () => {
   // ── Local state ──
-  // useState("") means the initial value of the input is an empty string.
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const [sortBy, setSortBy] = useState("Newest First");
+
+  // currentPage starts at 1. When user clicks page 2, this becomes 2, etc.
+  const [currentPage, setCurrentPage] = useState(1);
+
+  // ── Pagination calculations ──
+  // Math.ceil rounds UP — e.g. 12 jobs / 9 per page = 1.33 → 2 pages
+  const totalPages = Math.ceil(mockJobs.length / JOBS_PER_PAGE);
+
+  // Which slice of the array to show on the current page:
+  // Page 1: slice(0, 9)   → indices 0–8   → jobs 1–9
+  // Page 2: slice(9, 18)  → indices 9–17  → jobs 10–12
+  const startIndex = (currentPage - 1) * JOBS_PER_PAGE;
+  const endIndex = startIndex + JOBS_PER_PAGE;
+  const currentJobs = mockJobs.slice(startIndex, endIndex);
+
+  // When user clicks a page number — update currentPage
+  const goToPage = (page) => {
+    // Guard: don't go below 1 or above totalPages
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+    // Scroll back to top so user sees the new results from the beginning
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     // min-h-screen makes the page at least as tall as the viewport
@@ -93,7 +118,11 @@ const Jobs = () => {
             {/* Result count + Sort dropdown */}
             <div className="flex items-center justify-between mb-5">
               <p className="text-sm text-gray-600">
-                Showing <span className="font-semibold">{mockJobs.length}</span> results for your search
+                Showing{" "}
+                <span className="font-semibold">
+                  {startIndex + 1}–{Math.min(endIndex, mockJobs.length)}
+                </span>{" "}
+                of <span className="font-semibold">{mockJobs.length}</span> results
               </p>
 
               {/* Sort dropdown — a plain select styled to look clean */}
@@ -117,29 +146,38 @@ const Jobs = () => {
             </div>
 
             {/* ── Job Cards Grid ── */}
-
-            <div className="grid grid-cols-2 gap-4">
-              {mockJobs.map((job) => (
+            {/* currentJobs is the sliced array for the current page only */}
+            <div className="grid grid-cols-3 gap-4">
+              {currentJobs.map((job) => (
                 <JobCard key={job.id} job={job} />
               ))}
             </div>
 
             {/* ── Pagination ── */}
-
+            {/*
+              totalPages is calculated from the data length.
+              Array.from({ length: totalPages }) creates an array we can map over.
+              e.g. totalPages=2 → [1, 2]
+            */}
             <div className="flex items-center justify-center gap-1 mt-10">
 
-              {/* Previous button */}
-              <button className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100">
+              {/* Previous button — disabled on page 1 */}
+              <button
+                onClick={() => goToPage(currentPage - 1)}
+                disabled={currentPage === 1}
+                className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <ChevronLeft size={14} />
               </button>
 
-              {/* Page numbers */}
-              {[1, 2, 3].map((page) => (
+              {/* Dynamic page number buttons */}
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
                 <button
                   key={page}
+                  onClick={() => goToPage(page)}
                   className={`w-8 h-8 rounded-md text-sm font-medium transition-colors
-                    ${page === 1
-                      ? "bg-[#6A38C2] text-white"          // active page
+                    ${page === currentPage
+                      ? "bg-[#6A38C2] text-white"                            // active
                       : "border border-gray-300 text-gray-600 hover:bg-gray-100"  // inactive
                     }`}
                 >
@@ -147,16 +185,12 @@ const Jobs = () => {
                 </button>
               ))}
 
-              {/* Ellipsis */}
-              <span className="w-8 h-8 flex items-center justify-center text-gray-400 text-sm">...</span>
-
-              {/* Last page */}
-              <button className="w-8 h-8 rounded-md border border-gray-300 text-sm text-gray-600 hover:bg-gray-100">
-                12
-              </button>
-
-              {/* Next button */}
-              <button className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100">
+              {/* Next button — disabled on last page */}
+              <button
+                onClick={() => goToPage(currentPage + 1)}
+                disabled={currentPage === totalPages}
+                className="w-8 h-8 flex items-center justify-center rounded-md border border-gray-300 text-gray-500 hover:bg-gray-100 disabled:opacity-40 disabled:cursor-not-allowed"
+              >
                 <ChevronRight size={14} />
               </button>
             </div>

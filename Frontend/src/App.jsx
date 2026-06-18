@@ -5,6 +5,7 @@ import Signup from './components/auth/Signup'
 import Home from './components/home/Home'
 import { Toaster } from 'sonner'
 import Jobs from './components/jobs/Jobs'
+import Browse from './components/browse/Browse'
 
 const appRouter = createBrowserRouter([
   {
@@ -19,11 +20,11 @@ const appRouter = createBrowserRouter([
   },{
     path:"/jobs",
     element:<Jobs/>
-  }
-  // {
-  //   path:"/",
-  //   element:<Home/>
-  // },{
+  },{
+    path:"/browse",
+    element:<Browse/>
+   }
+  //  ,{
   //   path:"/home",
   //   element:<Home/>
   // }
