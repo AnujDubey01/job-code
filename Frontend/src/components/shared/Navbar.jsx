@@ -26,14 +26,14 @@ function Navbar() {
 
         <div className="flex items-center gap-12">
           <ul className="flex font-medium items-center gap-5">
-            <li>Home</li>
-            <li>Jobs</li>
-            <li>Browse</li>
+            <li><Link to={'/'}>Home</Link></li>
+            <li><Link to={'/jobs'}>Jobs</Link></li>
+            <li><Link to={'/browse'}>Browse</Link></li>
           </ul>
           {!user ? (
             <div className="flex items-center gap-2.5">
-              <Link to="/Login"><Button variant="outline">LogIn</Button></Link>
-              <Link to="/Signup"><Button   className="bg-[#8e54f1] hover:bg-[#6A38C2]  font-medium text-white">SignUp</Button></Link>
+              <Link to="/login"><Button variant="outline">LogIn</Button></Link>
+              <Link to="/signup"><Button className="bg-[#8e54f1] hover:bg-[#6A38C2] font-medium text-white">SignUp</Button></Link>
             </div>
           ) : (
             <Popover>
