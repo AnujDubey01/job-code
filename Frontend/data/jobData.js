@@ -1,16 +1,65 @@
+// Central mock job data used across the app.
+// When you connect a real backend, you'll replace this with API calls.
+
 export const jobs = [
   {
     id: 1,
-    company: "Google",
-    title: "Senior Frontend Developer",
-    location: "Remote",
-    salary: "12LPA"
+    company: "Google Inc.",
+    title: "Senior Frontend Architect",
+    location: "Mountain View, CA (Remote)",
+    description: "We are seeking an experienced architect to lead our core frontend systems. You will be responsible for...",
+    type: "Full Time",
+    salary: "120k - 160k",
+    mode: "Remote",
   },
   {
     id: 2,
-    company: "Microsoft",
-    title: "Backend Developer",
-    location: "Bangalore",
-    salary: "18LPA"
-  }
-]
+    company: "Stripe Payments",
+    title: "React Engineer",
+    location: "Dublin, Ireland",
+    description: "Join our engineering team to build the next generation of global economic infrastructure. Dee...",
+    type: "Contract",
+    salary: "90k - 110k",
+    mode: "On-site",
+  },
+  {
+    id: 3,
+    company: "Microsoft Azure",
+    title: "Frontend UI Developer",
+    location: "Redmond, WA",
+    description: "Help us define the future of cloud computing interfaces. Experience with large-scale component...",
+    type: "Full Time",
+    salary: "140k - 190k",
+    mode: "Hybrid",
+  },
+  {
+    id: 4,
+    company: "Adobe Systems",
+    title: "Visual Interaction Designer",
+    location: "San Francisco, CA",
+    description: "Collaborate with cross-functional teams to design intuitive and delightful user experiences for our...",
+    type: "Part Time",
+    salary: "80k - 100k",
+    mode: "Flexible",
+  },
+  {
+    id: 5,
+    company: "Meta",
+    title: "UI Engineer",
+    location: "Menlo Park, CA",
+    description: "Build the next generation of social experiences at scale for billions of users worldwide...",
+    type: "Full Time",
+    salary: "150k - 200k",
+    mode: "Hybrid",
+  },
+  {
+    id: 6,
+    company: "Netflix",
+    title: "Senior React Developer",
+    location: "Los Gatos, CA",
+    description: "Work on the streaming platform that powers entertainment for 200M+ subscribers globally...",
+    type: "Full Time",
+    salary: "180k - 220k",
+    mode: "Remote",
+  },
+];
