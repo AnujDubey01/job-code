@@ -98,6 +98,12 @@ const loginUser  = async (req,res) => {
                 success: false 
             });
         }
+        if (user.role !== role) {
+            return res.status(400).send({
+                success: false,
+                message: "Role mismatch"
+            });
+        }
 
         const accessToken = jwt.sign(
             {
