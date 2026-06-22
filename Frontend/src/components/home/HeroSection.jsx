@@ -1,8 +1,17 @@
-import React from "react";
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "../ui/button";
 import { Search } from "lucide-react";
 
 const HeroSection = () => {
+  const [query, setQuery] = useState("");
+  const navigate = useNavigate();
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const trimmedQuery = query.trim();
+    navigate(trimmedQuery ? `/jobs?keyword=${encodeURIComponent(trimmedQuery)}` : "/jobs");
+  };
   return (
     <div className="text-center">
       <div className="flex flex-col gap-5 my-18">
@@ -17,16 +26,21 @@ const HeroSection = () => {
           Lorem ipsum, dolor sit amet consectetur adipisicing elit. Assumenda
           laboriosam veritatis corrupti at, molestias iste.
         </p>
-        <div className="flex w-[40%] shadow-lg border-gray-200 pl-3 rounded-full items-center gap-4 mx-auto ">
+        <form
+          onSubmit={handleSearch}
+          className="flex w-[40%] shadow-lg border-gray-200 pl-3 rounded-full items-center gap-4 mx-auto"
+        >
           <input
             type="text"
             placeholder="Find your dream jobs"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
             className="outline-none border-none w-full"
           />
-          <Button className="rounded-r-full bg-[#6A38C2] hover:bg-black cursor-pointer text-white">
+          <Button type="submit" className="rounded-r-full bg-[#6A38C2] hover:bg-black cursor-pointer text-white">
             <Search className="h-5 w-5 text-white" />
           </Button>
-        </div>
+        </form>
       </div>
     </div>
   );

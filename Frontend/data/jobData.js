@@ -11,6 +11,7 @@ export const jobs = [
     type: "Full Time",
     salary: "120k - 160k",
     mode: "Remote",
+    experience: "Expert / Senior",
   },
   {
     id: 2,
@@ -21,6 +22,7 @@ export const jobs = [
     type: "Contract",
     salary: "90k - 110k",
     mode: "On-site",
+    experience: "Intermediate",
   },
   {
     id: 3,
@@ -31,6 +33,7 @@ export const jobs = [
     type: "Full Time",
     salary: "140k - 190k",
     mode: "Hybrid",
+    experience: "Intermediate",
   },
   {
     id: 4,
@@ -41,6 +44,7 @@ export const jobs = [
     type: "Part Time",
     salary: "80k - 100k",
     mode: "Flexible",
+    experience: "Entry Level",
   },
   {
     id: 5,
@@ -51,6 +55,7 @@ export const jobs = [
     type: "Full Time",
     salary: "150k - 200k",
     mode: "Hybrid",
+    experience: "Intermediate",
   },
   {
     id: 6,
@@ -61,6 +66,7 @@ export const jobs = [
     type: "Full Time",
     salary: "180k - 220k",
     mode: "Remote",
+    experience: "Expert / Senior",
   },
   {
     id: 7,
@@ -71,6 +77,7 @@ export const jobs = [
     type: "Full Time",
     salary: "130k - 170k",
     mode: "Hybrid",
+    experience: "Intermediate",
   },
   {
     id: 8,
@@ -81,6 +88,7 @@ export const jobs = [
     type: "Full Time",
     salary: "100k - 140k",
     mode: "Remote",
+    experience: "Entry Level",
   },
   {
     id: 9,
@@ -91,6 +99,7 @@ export const jobs = [
     type: "Full Time",
     salary: "140k - 180k",
     mode: "On-site",
+    experience: "Intermediate",
   },
   {
     id: 10,
@@ -101,6 +110,7 @@ export const jobs = [
     type: "Full Time",
     salary: "120k - 155k",
     mode: "Remote",
+    experience: "Intermediate",
   },
   {
     id: 11,
@@ -111,6 +121,7 @@ export const jobs = [
     type: "Contract",
     salary: "95k - 125k",
     mode: "Hybrid",
+    experience: "Intermediate",
   },
   {
     id: 12,
@@ -121,5 +132,6 @@ export const jobs = [
     type: "Full Time",
     salary: "110k - 150k",
     mode: "Remote",
+    experience: "Expert / Senior",
   },
 ];

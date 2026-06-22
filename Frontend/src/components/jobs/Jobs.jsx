@@ -1,4 +1,5 @@
-  import React, { useState } from "react";
+  import React, { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../shared/Navbar";
 import Footer from "../shared/Footer";
 import LeftSideBar from "./LeftSideBar";
@@ -10,32 +11,119 @@ import { jobs as mockJobs } from "../../../data/jobData";
 // How many job cards to show per page — change this one number to adjust
 const JOBS_PER_PAGE = 9;
 
+const parseSalaryRange = (salary) => {
+  const numbers = salary.match(/\d+/g)?.map(Number);
+  if (!numbers?.length) return null;
+  return {
+    min: numbers[0],
+    max: numbers.length > 1 ? numbers[1] : numbers[0],
+  };
+};
+
+const salariesOverlap = (jobSalary, filterSalary) => {
+  if (!filterSalary) return true;
+  const jobRange = parseSalaryRange(jobSalary);
+  const filterRange = parseSalaryRange(filterSalary);
+  if (!jobRange || !filterRange) return true;
+  return jobRange.max >= filterRange.min && jobRange.min <= filterRange.max;
+};
+
+const getSalaryScore = (salary) => {
+  const range = parseSalaryRange(salary);
+  if (!range) return 0;
+  return (range.min + range.max) / 2;
+};
+
 const Jobs = () => {
-  // ── Local state ──
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [keywordInput, setKeywordInput] = useState("");
+  const [locationInput, setLocationInput] = useState("");
   const [keyword, setKeyword] = useState("");
   const [location, setLocation] = useState("");
   const [sortBy, setSortBy] = useState("Newest First");
-
-  // currentPage starts at 1. When user clicks page 2, this becomes 2, etc.
+  const [selectedTypes, setSelectedTypes] = useState([]);
+  const [selectedSalary, setSelectedSalary] = useState("");
+  const [selectedExp, setSelectedExp] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
 
-  // ── Pagination calculations ──
-  // Math.ceil rounds UP — e.g. 12 jobs / 9 per page = 1.33 → 2 pages
-  const totalPages = Math.ceil(mockJobs.length / JOBS_PER_PAGE);
+  useEffect(() => {
+    const queryKeyword = searchParams.get("keyword") ?? "";
+    const queryLocation = searchParams.get("location") ?? "";
+    setKeyword(queryKeyword);
+    setKeywordInput(queryKeyword);
+    setLocation(queryLocation);
+    setLocationInput(queryLocation);
+  }, [searchParams]);
 
-  // Which slice of the array to show on the current page:
-  // Page 1: slice(0, 9)   → indices 0–8   → jobs 1–9
-  // Page 2: slice(9, 18)  → indices 9–17  → jobs 10–12
+  const toggleSelection = (values, value) =>
+    values.includes(value) ? values.filter((item) => item !== value) : [...values, value];
+
+  const handleSearch = (event) => {
+    event.preventDefault();
+    const trimmedKeyword = keywordInput.trim();
+    const trimmedLocation = locationInput.trim();
+    setKeyword(trimmedKeyword);
+    setLocation(trimmedLocation);
+    const params = {};
+    if (trimmedKeyword) params.keyword = trimmedKeyword;
+    if (trimmedLocation) params.location = trimmedLocation;
+    setSearchParams(params);
+  };
+
+  const filteredJobs = useMemo(() => {
+    const matchesFilters = (job) => {
+      const keywordMatch =
+        !keyword ||
+        [job.title, job.company, job.description].some((value) =>
+          value.toLowerCase().includes(keyword.toLowerCase())
+        );
+      const locationMatch = !location || job.location.toLowerCase().includes(location.toLowerCase());
+      const typeMatch = !selectedTypes.length || selectedTypes.includes(job.type);
+      const salaryMatch = salariesOverlap(job.salary, selectedSalary);
+      const expMatch = !selectedExp.length || selectedExp.includes(job.experience);
+      return keywordMatch && locationMatch && typeMatch && salaryMatch && expMatch;
+    };
+
+    const sorted = [...mockJobs].filter(matchesFilters);
+
+    if (sortBy === "Oldest First") {
+      return sorted.sort((a, b) => a.id - b.id);
+    }
+    if (sortBy === "Highest Salary") {
+      return sorted.sort((a, b) => getSalaryScore(b.salary) - getSalaryScore(a.salary));
+    }
+    if (sortBy === "Most Relevant") {
+      if (!keyword) return sorted.sort((a, b) => b.id - a.id);
+      return sorted.sort((a, b) => {
+        const score = (item) =>
+          [item.title, item.company, item.description].reduce(
+            (sum, value) => sum + (value.toLowerCase().includes(keyword.toLowerCase()) ? 1 : 0),
+            0
+          );
+        return score(b) - score(a) || b.id - a.id;
+      });
+    }
+    return sorted.sort((a, b) => b.id - a.id);
+  }, [keyword, location, selectedTypes, selectedSalary, selectedExp, sortBy]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredJobs.length / JOBS_PER_PAGE));
   const startIndex = (currentPage - 1) * JOBS_PER_PAGE;
   const endIndex = startIndex + JOBS_PER_PAGE;
-  const currentJobs = mockJobs.slice(startIndex, endIndex);
+  const currentJobs = filteredJobs.slice(startIndex, endIndex);
 
-  // When user clicks a page number — update currentPage
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [keyword, location, selectedTypes, selectedSalary, selectedExp, sortBy]);
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
   const goToPage = (page) => {
-    // Guard: don't go below 1 or above totalPages
     if (page < 1 || page > totalPages) return;
     setCurrentPage(page);
-    // Scroll back to top so user sees the new results from the beginning
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
@@ -64,7 +152,7 @@ const Jobs = () => {
 
           {/* ── Search Bar ── */}
 
-          <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm max-w-3xl">
+          <form onSubmit={handleSearch} className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden shadow-sm max-w-3xl">
 
             {/* Keyword input */}
             <div className="flex items-center gap-2 flex-1 px-4 py-3 border-r border-gray-300">
@@ -72,8 +160,8 @@ const Jobs = () => {
               <input
                 type="text"
                 placeholder="Frontend Developer"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
+                value={keywordInput}
+                onChange={(e) => setKeywordInput(e.target.value)}
                 className="outline-none text-sm w-full text-gray-700 placeholder-gray-400"
               />
             </div>
@@ -84,18 +172,18 @@ const Jobs = () => {
               <input
                 type="text"
                 placeholder="Remote"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
+                value={locationInput}
+                onChange={(e) => setLocationInput(e.target.value)}
                 className="outline-none text-sm w-full text-gray-700 placeholder-gray-400"
               />
             </div>
 
             {/* Search button */}
-            <Button className="rounded-none rounded-r-lg bg-[#6A38C2] hover:bg-[#5930a8] px-6 h-full py-3 text-sm font-semibold">
+            <Button type="submit" className="rounded-none rounded-r-lg bg-[#6A38C2] hover:bg-[#5930a8] px-6 h-full py-3 text-sm font-semibold">
               Search Jobs
             </Button>
 
-          </div>
+          </form>
         </div>
       </div>
 
@@ -109,7 +197,19 @@ const Jobs = () => {
           {/* ── LEFT: Filter Sidebar ── */}
           {/* w-64 = 256px fixed width. shrink-0 stops it from squishing. */}
           <div className="w-64 shrink-0">
-            <LeftSideBar />
+            <LeftSideBar
+              selectedTypes={selectedTypes}
+              selectedSalary={selectedSalary}
+              selectedExp={selectedExp}
+              onToggleType={(type) => setSelectedTypes((prev) => toggleSelection(prev, type))}
+              onSelectSalary={(salary) => setSelectedSalary((prev) => (prev === salary ? "" : salary))}
+              onToggleExp={(level) => setSelectedExp((prev) => toggleSelection(prev, level))}
+              clearAll={() => {
+                setSelectedTypes([]);
+                setSelectedSalary("");
+                setSelectedExp([]);
+              }}
+            />
           </div>
 
           {/* ── RIGHT: Results area ── */}
@@ -120,9 +220,9 @@ const Jobs = () => {
               <p className="text-sm text-gray-600">
                 Showing{" "}
                 <span className="font-semibold">
-                  {startIndex + 1}–{Math.min(endIndex, mockJobs.length)}
+                  {filteredJobs.length === 0 ? 0 : startIndex + 1}–{Math.min(endIndex, filteredJobs.length)}
                 </span>{" "}
-                of <span className="font-semibold">{mockJobs.length}</span> results
+                of <span className="font-semibold">{filteredJobs.length}</span> results
               </p>
 
               {/* Sort dropdown — a plain select styled to look clean */}
